@@ -180,3 +180,67 @@ func TestRandomData(t *testing.T) {
 		}
 	}
 }
+
+func TestAccept(t *testing.T) {
+	var m Map
+	m.Set("hello", "world")
+	prev, replaced := m.SetAccept("hello", "planet", nil)
+	if !replaced {
+		t.Fatal("expected true")
+	}
+	if prev.(string) != "world" {
+		t.Fatalf("expected '%v', got '%v'", "world", prev)
+	}
+	if v, _ := m.Get("hello"); v.(string) != "planet" {
+		t.Fatalf("expected '%v', got '%v'", "planet", v)
+	}
+	prev, replaced = m.SetAccept("hello", "world", func(prev interface{}, replaced bool) bool {
+		if !replaced {
+			t.Fatal("expected true")
+		}
+		if prev.(string) != "planet" {
+			t.Fatalf("expected '%v', got '%v'", "planet", prev)
+		}
+		return true
+	})
+	if !replaced {
+		t.Fatal("expected true")
+	}
+	if prev.(string) != "planet" {
+		t.Fatalf("expected '%v', got '%v'", "planet", prev)
+	}
+	prev, replaced = m.SetAccept("hello", "planet", func(prev interface{}, replaced bool) bool {
+		if !replaced {
+			t.Fatal("expected true")
+		}
+		if prev.(string) != "world" {
+			t.Fatalf("expected '%v', got '%v'", "world", prev)
+		}
+		return false
+	})
+	if replaced {
+		t.Fatal("expected false")
+	}
+	if prev != nil {
+		t.Fatalf("expected '%v', got '%v'", nil, prev)
+	}
+	if v, _ := m.Get("hello"); v.(string) != "world" {
+		t.Fatalf("expected '%v', got '%v'", "world", v)
+	}
+
+	prev, replaced = m.SetAccept("hi", "world", func(prev interface{}, replaced bool) bool {
+		if replaced {
+			t.Fatal("expected false")
+		}
+		if prev != nil {
+			t.Fatalf("expected '%v', got '%v'", nil, prev)
+		}
+		return false
+	})
+	if replaced {
+		t.Fatal("expected false")
+	}
+	if prev != nil {
+		t.Fatalf("expected '%v', got '%v'", nil, prev)
+	}
+}

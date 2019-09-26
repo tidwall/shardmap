@@ -36,6 +36,36 @@ func (m *Map) Set(key string, value interface{}) (prev interface{}, replaced boo
 	return prev, replaced
 }
 
+// SetAccept assigns a value to a key. The "accept" function can be used to
+// inspect the previous value, if any, and accept or reject the change.
+// It's also provides a safe way to block other others from writing to the
+// same shard while inspecting.
+// Returns the previous value, or false when no value was assigned.
+func (m *Map) SetAccept(
+	key string, value interface{},
+	accept func(prev interface{}, replaced bool) bool,
+) (prev interface{}, replaced bool) {
+	m.initDo()
+	shard := m.choose(key)
+	m.mus[shard].Lock()
+	defer m.mus[shard].Unlock()
+	prev, replaced = m.maps[shard].Set(key, value)
+	if accept != nil {
+		if !accept(prev, replaced) {
+			// revert unaccepted change
+			if !replaced {
+				// delete the newly set data
+				m.maps[shard].Delete(key)
+			} else {
+				// reset updated data
+				m.maps[shard].Set(key, prev)
+			}
+			prev, replaced = nil, false
+		}
+	}
+	return prev, replaced
+}
+
 // Get returns a value for a key.
 // Returns false when no value has been assign for key.
 func (m *Map) Get(key string) (value interface{}, ok bool) {
