@@ -49,7 +49,7 @@ Benchmarking conncurrent SET, GET, RANGE, and DELETE operations for
     `sync.Map`, `map[string]interface{}`, `github.com/tidwall/shardmap`. 
 
 ```
-go version go1.13 darwin/amd64
+go version go1.13 darwin/amd64 (Macbook 2018)
 
      number of cpus: 12
      number of keys: 1000000
@@ -75,7 +75,33 @@ rng:       100 ops over 12 threads in 231ms,       432/sec, 2310163 ns/op
 del: 1,000,000 ops over 12 threads in 49ms, 20,259,435/sec, 49 ns/op
 ```
 
-*run from my Macbook 2018*
+
+```
+go version go1.13.1 linux/amd64 (ec2 r5.12xlarge)
+
+     number of cpus: 48
+     number of keys: 1000000
+            keysize: 10
+        random seed: 1569533867316350480
+
+-- sync.Map --
+set: 1,000,000 ops over 48 threads in 999ms, 1,001,035/sec, 998 ns/op
+get: 1,000,000 ops over 48 threads in 414ms, 2,415,938/sec, 413 ns/op
+rng:       100 ops over 48 threads in 548ms,       182/sec, 5483971 ns/op
+del: 1,000,000 ops over 48 threads in 250ms, 4,003,491/sec, 249 ns/op
+
+-- stdlib map --
+set: 1,000,000 ops over 48 threads in 479ms, 2,085,895/sec, 479 ns/op
+get: 1,000,000 ops over 48 threads in 40ms, 25,032,448/sec, 39 ns/op
+rng:       100 ops over 48 threads in 116ms,       865/sec, 1155953 ns/op
+del: 1,000,000 ops over 48 threads in 222ms, 4,499,962/sec, 222 ns/op
+
+-- github.com/tidwall/shardmap --
+set: 1,000,000 ops over 48 threads in 51ms, 19,592,641/sec, 51 ns/op
+get: 1,000,000 ops over 48 threads in 7ms, 150,933,098/sec, 6 ns/op
+rng:       100 ops over 48 threads in 114ms,       880/sec, 1135747 ns/op
+del: 1,000,000 ops over 48 threads in 12ms, 81,879,373/sec, 12 ns/op
+```
 
 ## Contact
 
