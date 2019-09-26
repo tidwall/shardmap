@@ -5,6 +5,7 @@
 package shardmap
 
 import (
+	"fmt"
 	"math/rand"
 	"strconv"
 	"testing"
@@ -293,6 +294,21 @@ func TestDeleteAccept(t *testing.T) {
 	}
 	if prev.(string) != "world" {
 		t.Fatalf("expected '%v', got '%v'", "world", prev)
+	}
+
+}
+
+func TestClear(t *testing.T) {
+	var m Map
+	for i := 0; i < 1000; i++ {
+		m.Set(fmt.Sprintf("%d", i), i)
+	}
+	if m.Len() != 1000 {
+		t.Fatalf("expected '%v', got '%v'", 1000, m.Len())
+	}
+	m.Clear()
+	if m.Len() != 0 {
+		t.Fatalf("expected '%v', got '%v'", 0, m.Len())
 	}
 
 }

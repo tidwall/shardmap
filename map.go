@@ -25,6 +25,16 @@ func New(cap int) *Map {
 	return &Map{cap: cap}
 }
 
+// Clear out all values from map
+func (m *Map) Clear() {
+	m.initDo()
+	for i := 0; i < m.shards; i++ {
+		m.mus[i].Lock()
+		m.maps[i] = rhh.New(m.cap / m.shards)
+		m.mus[i].Unlock()
+	}
+}
+
 // Set assigns a value to a key.
 // Returns the previous value, or false when no value was assigned.
 func (m *Map) Set(key string, value interface{}) (prev interface{}, replaced bool) {
