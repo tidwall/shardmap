@@ -181,7 +181,7 @@ func TestRandomData(t *testing.T) {
 	}
 }
 
-func TestAccept(t *testing.T) {
+func TestSetAccept(t *testing.T) {
 	var m Map
 	m.Set("hello", "world")
 	prev, replaced := m.SetAccept("hello", "planet", nil)
@@ -243,4 +243,56 @@ func TestAccept(t *testing.T) {
 	if prev != nil {
 		t.Fatalf("expected '%v', got '%v'", nil, prev)
 	}
+}
+
+func TestDeleteAccept(t *testing.T) {
+	var m Map
+	m.Set("hello", "world")
+	prev, deleted := m.DeleteAccept("hello", nil)
+	if !deleted {
+		t.Fatal("expected true")
+	}
+	if prev.(string) != "world" {
+		t.Fatalf("expected '%v', got '%v'", "world", prev)
+	}
+	m.Set("hello", "world")
+	prev, deleted = m.DeleteAccept("hello", func(prev interface{}, deleted bool) bool {
+		if !deleted {
+			t.Fatal("expected true")
+		}
+		if prev.(string) != "world" {
+			t.Fatalf("expected '%v', got '%v'", "world", prev)
+		}
+		return true
+	})
+	if !deleted {
+		t.Fatal("expected true")
+	}
+	if prev.(string) != "world" {
+		t.Fatalf("expected '%v', got '%v'", "world", prev)
+	}
+	m.Set("hello", "world")
+	prev, deleted = m.DeleteAccept("hello", func(prev interface{}, deleted bool) bool {
+		if !deleted {
+			t.Fatal("expected true")
+		}
+		if prev.(string) != "world" {
+			t.Fatalf("expected '%v', got '%v'", "world", prev)
+		}
+		return false
+	})
+	if deleted {
+		t.Fatal("expected false")
+	}
+	if prev != nil {
+		t.Fatalf("expected '%v', got '%v'", nil, prev)
+	}
+	prev, ok := m.Get("hello")
+	if !ok {
+		t.Fatal("expected true")
+	}
+	if prev.(string) != "world" {
+		t.Fatalf("expected '%v', got '%v'", "world", prev)
+	}
+
 }

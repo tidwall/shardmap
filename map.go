@@ -88,6 +88,34 @@ func (m *Map) Delete(key string) (prev interface{}, deleted bool) {
 	return prev, deleted
 }
 
+// DeleteAccept deletes a value for a key. The "accept" function can be used to
+// inspect the previous value, if any, and accept or reject the change.
+// It's also provides a safe way to block other others from writing to the
+// same shard while inspecting.
+// Returns the deleted value, or false when no value was assigned.
+func (m *Map) DeleteAccept(
+	key string,
+	accept func(prev interface{}, replaced bool) bool,
+) (prev interface{}, deleted bool) {
+	m.initDo()
+	shard := m.choose(key)
+	m.mus[shard].Lock()
+	defer m.mus[shard].Unlock()
+	prev, deleted = m.maps[shard].Delete(key)
+	if accept != nil {
+		if !accept(prev, deleted) {
+			// revert unaccepted change
+			if deleted {
+				// reset updated data
+				m.maps[shard].Set(key, prev)
+			}
+			prev, deleted = nil, false
+		}
+	}
+
+	return prev, deleted
+}
+
 // Len returns the number of values in map.
 func (m *Map) Len() int {
 	m.initDo()
