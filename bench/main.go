@@ -40,10 +40,15 @@ func main() {
 
 	fmt.Printf("\n")
 
-	keys := make([]string, N)
-	for i := 0; i < N; i++ {
-		keys[i] = randKey(rng, K)
+	keysm := make(map[string]bool, N)
+	for len(keysm) < N {
+		keysm[randKey(rng, K)] = true
 	}
+	keys := make([]string, 0, N)
+	for key := range keysm {
+		keys = append(keys, key)
+	}
+
 	lotsa.Output = os.Stdout
 	// lotsa.MemUsage = true
 
