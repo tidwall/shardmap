@@ -13,7 +13,6 @@ type Map struct {
 	init   sync.Once
 	cap    int
 	shards int
-	seed   uint32
 	mus    []sync.RWMutex
 	maps   []*rhh.Map
 }
