@@ -164,6 +164,12 @@ func main() {
 			return true
 		})
 	})
+	print("crng:       ")
+	lotsa.Ops(100, runtime.NumCPU(), func(i, _ int) {
+		com.CRange(func(key string, value interface{}) bool {
+			return true
+		})
+	})
 	print("del: ")
 	lotsa.Ops(N, runtime.NumCPU(), func(i, _ int) {
 		com.Delete(keys[i])

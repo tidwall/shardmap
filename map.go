@@ -161,6 +161,25 @@ func (m *Map) Range(iter func(key string, value interface{}) bool) {
 	}
 }
 
+// CRange iterates overall all key/values, concurrently over each shard. In case
+// of the iterating function returning false, that shard stops processing, while
+// the others continue.
+// It's not safe to call or Set or Delete while ranging.
+func (m *Map) CRange(iter func(key string, value interface{}) bool) {
+	m.initDo()
+	var wg sync.WaitGroup
+	wg.Add(m.shards)
+	for i := 0; i < m.shards; i++ {
+		go func(i int) {
+			defer wg.Done()
+			m.mus[i].RLock()
+			defer m.mus[i].RUnlock()
+			m.maps[i].Range(iter)
+		}(i)
+	}
+	wg.Wait()
+}
+
 func (m *Map) choose(key string) int {
 	return int(xxhash.Sum64String(key) & uint64(m.shards-1))
 }

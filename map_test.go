@@ -165,6 +165,12 @@ func TestRandomData(t *testing.T) {
 			}
 			return true
 		})
+		m.CRange(func(key keyT, value valueT) bool {
+			if value != add(key, 1) {
+				t.Fatalf("expected %v, got %v", add(key, 1), value)
+			}
+			return true
+		})
 		var n int
 		m.Range(func(key keyT, value valueT) bool {
 			n++
