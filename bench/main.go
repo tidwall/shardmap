@@ -133,9 +133,8 @@ func main() {
 	})
 	print("rng:       ")
 	lotsa.Ops(100, runtime.NumCPU(), func(i, _ int) {
-		for range cmap.IterBuffered() {
-
-		}
+		cmap.IterCb(func(key string, value interface{}) {
+		})
 	})
 	print("del: ")
 	lotsa.Ops(N, runtime.NumCPU(), func(i, _ int) {
