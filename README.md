@@ -45,7 +45,7 @@ fmt.Printf("%v\n", val)
 
 ## Performance
 
-Benchmarking conncurrent SET, GET, RANGE, and DELETE operations for 
+Benchmarking concurrent SET, GET, RANGE, and DELETE operations for 
     `sync.Map`, `map[string]interface{}`, `github.com/tidwall/shardmap`. 
 
 ```
